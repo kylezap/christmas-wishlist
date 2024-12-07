@@ -38,9 +38,9 @@ public class WishlistController {
         if (item.isPresent()) {
             WishlistItem existingItem = item.get();
             existingItem.setName(updatedItem.getName());
-            existingItem.setDescription(updatedItem.getDescription());
-            existingItem.setPrice(updatedItem.getPrice());
-            existingItem.setLink(updatedItem.getLink());
+            // existingItem.setDescription(updatedItem.getDescription());
+            // existingItem.setPrice(updatedItem.getPrice());
+            // existingItem.setLink(updatedItem.getLink());
             return existingItem;
         }
         return null;

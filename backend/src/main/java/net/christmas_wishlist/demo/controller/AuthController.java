@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+
+//TODO: add logger statements for login and create user methods
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")

@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/wishlist")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class WishlistController {
 
     private final List<WishlistItem> wishlist = new ArrayList<>();

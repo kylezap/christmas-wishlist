@@ -1,100 +1,126 @@
 import "./App.css";
 import { useState, useEffect } from "react";
+import LoginForm from "./components/LoginForm";
+import Wishlist from "./components/WishList";
+import Logo from "./components/Logo";
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
-console.log(apiUrl);
+export default function App() {
+  const [token, setToken] = useState(null); // Stores the JWT token
+  const [items, setItems] = useState([]); // Stores the user's wishlist
+  const [newItem, setNewItem] = useState(""); // Tracks new item input
 
-function App() {
-  //Use the useState hook to store the items
-  const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState("");
+  // Function to handle user logout
+  const handleLogout = () => {
+    setToken(null); // Clear the token to log out the user
+    setItems([]); // Clear the wishlist
+  };
 
-  console.log(newItem);
-
-  // Use the useEffect hook to load the items from the server
+  // Fetch the wishlist after the user logs in
   useEffect(() => {
-    const loadItems = async () => {
-      const response = await fetch(`${apiUrl}`);
-      if (response.ok) {
-        const items = await response.json();
-        setItems(items);
-      }
-    };
-    loadItems();
-  }, []);
+    if (token) {
+      const loadItems = async () => {
+        const response = await fetch(`${apiUrl}/wishlist`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const items = await response.json();
+          setItems(items);
+        } else {
+          alert("Failed to fetch wishlist. Please log in again.");
+          handleLogout();
+        }
+      };
+      loadItems();
+    }
+  }, [token]);
 
-  //Build API to store the items, connect to the API and store the items on the server, using the fetch API
+  // Add a new item to the wishlist
   const postItem = async () => {
+    if (!newItem.trim()) {
+      alert("Item name cannot be empty!");
+      return;
+    }
+
     const response = await fetch(`${apiUrl}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ name: newItem }),
     });
+
     if (response.ok) {
       const item = await response.json();
       setItems([...items, item]);
+      setNewItem(""); // Clear the input field
+    } else {
+      alert("Failed to add item. Please try again.");
     }
   };
 
-  //Build API to remove the items, connect to the API and remove the items on the server, using the fetch API
+  // Remove an item from the wishlist
   const removeItem = async (index) => {
-    const response = await fetch(`${apiUrl}/${items[index].id}`, {
+    const response = await fetch(`${apiUrl}/wishlist/${items[index].id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
+
     if (response.ok) {
       const newItems = items.filter((item, i) => i !== index);
       setItems(newItems);
+    } else {
+      alert("Failed to remove item. Please try again.");
     }
   };
-  
+
+  //TODO: Add edit button to the Wishlist component
+  const editItem = async (index) => {
+    const response = await fetch(`${apiUrl}/wishlist/${items[index].id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: newItem }),
+    });
+
+    if (response.ok) {
+      const item = await response.json();
+      const newItems = [...items];
+      newItems[index] = item;
+      setItems(newItems);
+    } else {
+      alert("Failed to edit item. Please try again.");
+    }
+  }
+
   return (
-    <>
-      <div className="border-solid border-2">
-        <h1 className="m-6 p-6 text-center text-5xl">CHRISTMAS WISHLIST</h1>
-      </div>
-      <div className="flex justify-center m-4">
-        <div className="flex flex-col justify-center w-1/2">
-          <div className="flex justify-center m-4">
-            <input
-              type="text"
-              className="border-solid border-2 border-gray-400 p-2 w-1/2"
-              placeholder="Add a new item"
-              value={newItem}
-              onChange={(e) => setNewItem(e.target.value)}
-            />
-            <button
-              className="border-solid border-2 border-gray-400 p-2"
-              onClick={() => postItem({ newItem })}
-            >
-              Add
-            </button>
-          </div>
-          {items.length === 0 ? (
-            <div className="flex justify-center">
-              <p>No items</p>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <ul className="border-solid border-2 border-gray-400 w-1/2">
-                {items.map((item, index) => (
-                  <li
-                    key={index}
-                    className="border-solid border-2 border-gray-400 p-2"
-                  >
-                    {item.name}
-                    <button onClick={() => removeItem(index)}>Remove</button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-    </>
+    <div>
+      <Logo />
+            <main className="flex justify-center m-4">
+        {!token ? (
+          // Render Login Form when the user is not logged in
+          <LoginForm setToken={setToken} />
+        ) : (
+          // Render Wishlist when the user is logged in
+          <Wishlist
+            items={items}
+            newItem={newItem}
+            setNewItem={setNewItem}
+            postItem={postItem}
+            removeItem={removeItem}
+          />
+        )}
+      </main>
+    </div>
   );
 }
 
-export default App;

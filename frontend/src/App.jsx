@@ -4,24 +4,45 @@ import LoginForm from "./components/LoginForm";
 import Wishlist from "./components/WishList";
 import Logo from "./components/Logo";
 
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
+const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080/";
 export default function App() {
-  const [token, setToken] = useState(null); // Stores the JWT token
+  const [token, setToken] = useState(() => {
+    //initialize token from local storage
+    const savedToken = localStorage.getItem("token");
+    return savedToken ? JSON.parse(savedToken) : null;
+  }
+  );
   const [items, setItems] = useState([]); // Stores the user's wishlist
-  const [newItem, setNewItem] = useState(""); // Tracks new item input
-
+  const [value, setValue] = useState(""); // Tracks new item input
+  
   // Function to handle user logout
+
   const handleLogout = () => {
     setToken(null); // Clear the token to log out the user
     setItems([]); // Clear the wishlist
   };
 
+  useEffect(() => {
+    localStorage.setItem("token", JSON.stringify(token));
+  }, [token]);
+
+// //Check if the user is logged in from local storage
+
+  // useEffect(() => {
+  //   // const token = localStorage.getItem("token");
+  //   if (token) {
+  //     setToken(token);
+  //   } else {
+  //     handleLogout();
+  //   }
+  // } , []);
+
   // Fetch the wishlist after the user logs in
+
   useEffect(() => {
     if (token) {
       const loadItems = async () => {
-        const response = await fetch(`${apiUrl}/wishlist`, {
+        const response = await fetch(`${apiUrl}api/wishlist`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -31,8 +52,8 @@ export default function App() {
           const items = await response.json();
           setItems(items);
         } else {
-          alert("Failed to fetch wishlist. Please log in again.");
-          handleLogout();
+          alert("Failed to fetch wishlist. Please try again.");
+          
         }
       };
       loadItems();
@@ -40,33 +61,36 @@ export default function App() {
   }, [token]);
 
   // Add a new item to the wishlist
+
   const postItem = async () => {
-    if (!newItem.trim()) {
+    if (!value.trim()) {
       alert("Item name cannot be empty!");
       return;
     }
 
-    const response = await fetch(`${apiUrl}`, {
+    const response = await fetch(`${apiUrl}api/wishlist`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ name: newItem }),
+      body: JSON.stringify({ name: value }),
     });
 
     if (response.ok) {
-      const item = await response.json();
-      setItems([...items, item]);
-      setNewItem(""); // Clear the input field
+      const value = await response.json();
+      setItems([...items, value]);
+      setValue(""); // Clear the input field
     } else {
       alert("Failed to add item. Please try again.");
     }
   };
 
+
   // Remove an item from the wishlist
+
   const removeItem = async (index) => {
-    const response = await fetch(`${apiUrl}/wishlist/${items[index].id}`, {
+    const response = await fetch(`${apiUrl}api/wishlist/${items[index].id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -74,29 +98,30 @@ export default function App() {
     });
 
     if (response.ok) {
-      const newItems = items.filter((item, i) => i !== index);
-      setItems(newItems);
+      const values = items.filter((item, i) => i !== index);
+      setItems(values);
     } else {
       alert("Failed to remove item. Please try again.");
     }
   };
 
   //TODO: Add edit button to the Wishlist component
+
   const editItem = async (index) => {
-    const response = await fetch(`${apiUrl}/wishlist/${items[index].id}`, {
+    const response = await fetch(`${apiUrl}api/wishlist/${items[index].id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ name: newItem }),
+      body: JSON.stringify({ name: value }),
     });
 
     if (response.ok) {
       const item = await response.json();
-      const newItems = [...items];
-      newItems[index] = item;
-      setItems(newItems);
+      const values = [...items];
+      values[index] = item;
+      setItems(values);
     } else {
       alert("Failed to edit item. Please try again.");
     }
@@ -111,13 +136,18 @@ export default function App() {
           <LoginForm setToken={setToken} />
         ) : (
           // Render Wishlist when the user is logged in
+          <>
+          
           <Wishlist
             items={items}
-            newItem={newItem}
-            setNewItem={setNewItem}
+            value={value}
+            setValue={setValue}
             postItem={postItem}
             removeItem={removeItem}
+            editItem={editItem}
           />
+          <button className="rounded bg-red-600 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" onClick={handleLogout}>Logout</button>
+          </>
         )}
       </main>
     </div>

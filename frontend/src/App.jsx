@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import LoginForm from "./components/LoginForm";
 import Wishlist from "./components/WishList";
 import Logo from "./components/Logo";
+import Nav from "./components/Nav";
+import Footer from "./components/Footer";
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080/";
 export default function App() {
@@ -10,11 +12,10 @@ export default function App() {
     //initialize token from local storage
     const savedToken = localStorage.getItem("token");
     return savedToken ? JSON.parse(savedToken) : null;
-  }
-  );
+  });
   const [items, setItems] = useState([]); // Stores the user's wishlist
   const [value, setValue] = useState(""); // Tracks new item input
-  
+
   // Function to handle user logout
 
   const handleLogout = () => {
@@ -25,19 +26,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("token", JSON.stringify(token));
   }, [token]);
-
-// //Check if the user is logged in from local storage
-
-  // useEffect(() => {
-  //   // const token = localStorage.getItem("token");
-  //   if (token) {
-  //     setToken(token);
-  //   } else {
-  //     handleLogout();
-  //   }
-  // } , []);
-
-  // Fetch the wishlist after the user logs in
 
   useEffect(() => {
     if (token) {
@@ -53,7 +41,6 @@ export default function App() {
           setItems(items);
         } else {
           alert("Failed to fetch wishlist. Please try again.");
-          
         }
       };
       loadItems();
@@ -85,7 +72,6 @@ export default function App() {
       alert("Failed to add item. Please try again.");
     }
   };
-
 
   // Remove an item from the wishlist
 
@@ -125,32 +111,31 @@ export default function App() {
     } else {
       alert("Failed to edit item. Please try again.");
     }
-  }
+  };
 
   return (
     <div>
+      <Nav handleLogout={handleLogout} token={token} />
       <Logo />
-            <main className="flex justify-center m-4">
+      <main className="flex justify-center m-4">
         {!token ? (
           // Render Login Form when the user is not logged in
           <LoginForm setToken={setToken} />
         ) : (
           // Render Wishlist when the user is logged in
           <>
-          
-          <Wishlist
-            items={items}
-            value={value}
-            setValue={setValue}
-            postItem={postItem}
-            removeItem={removeItem}
-            editItem={editItem}
-          />
-          <button className="rounded bg-red-600 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" onClick={handleLogout}>Logout</button>
+            <Wishlist
+              items={items}
+              value={value}
+              setValue={setValue}
+              postItem={postItem}
+              removeItem={removeItem}
+              editItem={editItem}
+            />
           </>
         )}
       </main>
+        <Footer />
     </div>
   );
 }
-

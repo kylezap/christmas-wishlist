@@ -1,14 +1,3 @@
-const toys = [
-  { name: "Water Gun" },
-  { name: "Kite" },
-  { name: "Lego Set" },
-  { name: "Building Blocks" },
-  { name: "Puzzle" },
-  { name: "Board Game" },
-  { name: "Action Figure" },
-  { name: "Rubik's Cube" }
-];
-
 
 export default function Wishlist({
   items,
@@ -16,25 +5,39 @@ export default function Wishlist({
   setValue,
   postItem,
   removeItem,
+  editItem,
 }) {
   return (
     <div className="flex flex-col justify-center w-2/3 border p-2">
       {/* Input for adding a new wishlist item */}
+      <div className="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
+      <div className="-ml-4 -mt-4 flex flex-wrap items-center justify-between sm:flex-nowrap">
+        <div className="ml-4 mt-4">
+          <h3 className="text-base font-semibold text-gray-900">My List</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Click the add button to add a new item to your list.
+          </p>
+        </div>
       <div className="flex justify-center m-4">
         <input
           type="text"
-          className="border-solid border-2 border-gray-400 p-2 w-1/2"
+          className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
           placeholder="Add a new item"
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-        <button
-          className="border-solid border-2 border-gray-400 p-2"
-          onClick={() => postItem()}
-        >
-          Add
-        </button>
       </div>
+        <div className="ml-4 mt-4 shrink-0">
+          <button
+            type="button"
+            className="relative inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            onClick={postItem}
+          >
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
 
       {/* Mapped list of items */}
       {items.length === 0 ? (
@@ -57,13 +60,13 @@ export default function Wishlist({
               {/* TODO: build edit and complete buttons */}
             <button
               href="#"
-              className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              className="m-2 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
             >
               Edit
             </button>
             <button
               href="#"
-              className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              className="m-2 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
               onClick={() => removeItem(index)}
             >
                  Remove

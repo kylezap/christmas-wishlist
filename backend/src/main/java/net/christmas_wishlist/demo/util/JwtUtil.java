@@ -33,7 +33,8 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        byte[] keyBytes = secret.getBytes();
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractUsername(String token) {

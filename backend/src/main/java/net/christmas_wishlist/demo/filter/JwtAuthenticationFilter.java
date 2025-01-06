@@ -22,34 +22,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        // Extract the JWT token from the Authorization header
-        String authHeader = request.getHeader("Authorization");
-        String username = null;
-        String jwt = null;
-
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) 
+            throws ServletException, IOException {
+        final String authHeader = request.getHeader("Authorization");
+        
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt); // Extract username from the token
-        }
-
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = jwtUtil.getUserDetails(username);
-
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                // Build the authentication object
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Set authentication in the Security Context
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = authHeader.substring(7);
+            String username = jwtUtil.extractUsername(token);
+            
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = jwtUtil.getUserDetails(username);
+                if (jwtUtil.validateToken(token, userDetails)) {
+                    SecurityContextHolder.getContext()
+                        .setAuthentication(jwtUtil.getAuthentication(token, userDetails));
+                }
             }
         }
-
-        // Continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

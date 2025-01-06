@@ -3,6 +3,7 @@
 package net.christmas_wishlist.demo.controller;
 
 import net.christmas_wishlist.demo.model.WishlistItem;
+import net.christmas_wishlist.demo.util.JwtUtil;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -20,24 +22,33 @@ import java.util.Optional;
 public class WishlistController {
 
     private static final Logger logger = LoggerFactory.getLogger(WishlistController.class);
-
+    private final JwtUtil jwtUtil;
     private final List<WishlistItem> wishlist = new ArrayList<>();
     private Long idCounter = 1L; // Counter for generating unique ids
 
-    //Get all wishlist items
-    @GetMapping
-    public List<WishlistItem> getAllItems() {
-        logger.info("Fetching all wishlist items");
-        return wishlist;
+    public WishlistController(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
     }
 
-    //Add a new item to the wishlist
+    //Get all wishlist items for specific user
+    @GetMapping
+    public List<WishlistItem> getAllItems(@RequestHeader("Authorization") String token) {
+        Long userId = jwtUtil.getUserIdFromToken(token.substring(7));
+        logger.info("Fetching all wishlist items for user ID {}", userId);
+        return wishlist.stream()
+            .filter(item -> item.getUserId().equals(userId))
+            .collect(Collectors.toList());
+    }
+
+    //Add a new item to the wishlist with user id
     @PostMapping
-    public ResponseEntity<?> addItem(@RequestBody WishlistItem item) {
+    public ResponseEntity<?> addItem(@RequestBody WishlistItem item, @RequestHeader("Authorization") String token) {
         try {
+            Long userId = jwtUtil.getUserIdFromToken(token.substring(7));
             item.setId(idCounter++);
+            item.setUserId(userId);
             wishlist.add(item);
-            logger.info("Added new item to wishlist: {}", item.getName());
+            logger.info("Added new item to wishlist for user ID {}: {}", userId, item.getName());
             return ResponseEntity.ok(item);
         } catch (Exception e) {
             logger.error("Error adding item to wishlist", e);

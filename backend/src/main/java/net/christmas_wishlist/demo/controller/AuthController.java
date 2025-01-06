@@ -37,6 +37,7 @@ public class AuthController {
 
     @PostMapping("/create")
     public ResponseEntity<String> createUser(@RequestBody User user) {
+        user.setId(generateUniqueId()); // Add method to generate unique ID
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         boolean isCreated = userService.addUser(user);
         if (isCreated) {
@@ -46,6 +47,10 @@ public class AuthController {
             logger.warn("User already exists: {}", user.getUsername());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
         }
+    }
+
+    private Long generateUniqueId() {
+        return System.currentTimeMillis(); // Simple example - consider using a more robust method
     }
 
     @PostMapping("/login")

@@ -3,7 +3,9 @@ package net.christmas_wishlist.demo.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 
 public class User implements UserDetails {
@@ -12,10 +14,9 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private String role;
+    private List<WishlistItem> wishlistItems = new ArrayList<>();
 
     //Constructors
-    public User() {
-    }
 
     public User(String username, String password, String role) {
         this.username = username;
@@ -80,6 +81,14 @@ public class User implements UserDetails {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<WishlistItem> getWishlistItems() {
+        return wishlistItems;
+    }
+
+    public void setWishlistItems(List<WishlistItem> wishlistItems) {
+        this.wishlistItems = wishlistItems;
     }
 
 }

@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import net.christmas_wishlist.demo.service.UserService;
+import net.christmas_wishlist.demo.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,18 +40,16 @@ public class JwtUtil {
     }
 
     public String generateToken(UserDetails userDetails) {
+        User user = (User) userDetails;
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
-    }
-
-    private String createToken(Map<String, Object> claims, String subject) {
+        claims.put("userId", user.getId());
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
-                .signWith(SECRET_KEY)
-                .compact();
+            .setClaims(claims)
+            .setSubject(user.getUsername())  // Use username as subject
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+            .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+            .compact();
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
@@ -73,5 +72,10 @@ public class JwtUtil {
 
     public UserDetails getUserDetails(String username) {
         return userService.loadUserByUsername(username);
+    }
+
+    public Long getUserIdFromToken(String token) {
+        final Claims claims = extractAllClaims(token);
+        return Long.parseLong(claims.get("userId").toString());
     }
 }

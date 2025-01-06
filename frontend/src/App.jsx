@@ -6,7 +6,8 @@ import Logo from "./components/Logo";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 
-const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080/";
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
+
 export default function App() {
   const [token, setToken] = useState(() => {
     //initialize token from local storage

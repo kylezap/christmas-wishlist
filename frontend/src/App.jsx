@@ -143,7 +143,9 @@ export default function App() {
           setToken(data.token);
           setShowSignupModal(false);
         } else {
-          alert("Sign up successful but auto-login failed. Please login manually.");
+          alert(
+            "Sign up successful but auto-login failed. Please login manually."
+          );
         }
       } else {
         alert("Signup failed! Please try again.");
@@ -159,18 +161,10 @@ export default function App() {
       <Nav handleLogout={handleLogout} token={token} />
       <Logo />
       <main className="flex justify-center m-4">
-      {!token ? (
+        {!token ? (
           <>
             {/* Render Login Form */}
-            <LoginForm setToken={setToken} />
-
-            {/* Signup Button */}
-            <button
-              onClick={() => setShowSignupModal(true)}
-              className="mt-4 ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Sign Up
-            </button>
+            <LoginForm setToken={setToken} />        
 
             {/* Signup Modal */}
             {showSignupModal && (
@@ -194,7 +188,15 @@ export default function App() {
           </>
         )}
       </main>
-        <Footer />
+      <div className="flex justify-center">
+        <button
+          onClick={() => setShowSignupModal(true)}
+          className="mt-4 ml-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500"
+        >
+          Sign Up
+        </button>
+      </div>
+      <Footer />
     </div>
   );
 }

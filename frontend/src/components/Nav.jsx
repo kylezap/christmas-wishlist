@@ -34,7 +34,8 @@ export default function Nav({ handleLogout, token }) {
                   className="h-8 w-auto"
                 />
               </div>
-              <div className="ml-6 flex space-x-8">
+              {/* These are Navbar items, add back when additional pages are added */}
+              {/* <div className="ml-6 flex space-x-8">
                 {navigation.map((item) => (
                   <a
                     key={item.name}
@@ -50,7 +51,7 @@ export default function Nav({ handleLogout, token }) {
                     {item.name}
                   </a>
                 ))}
-              </div>
+              </div> */}
             </div>
             <div className="ml-6 flex items-center">
               {token && (
